@@ -1,0 +1,227 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <h1 class="text-center">{{ webapp_title }}</h1>
+
+    <div class="container-lg">
+
+        <div class="row">
+            <div class="col-8 offset-2">
+                <form method="POST" action="{{ path('stapel_visualisierung') }}">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control col-6 me-0" placeholder="Barcode scannen" name="barcode" aria-label="barcode" autocomplete="off" autofocus required>
+                        <button type="submit" class="btn btn-success col-3 ms-0"><span id="submit-barcode">Platte hinzufügen</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% for message in app.flashes('Error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        
+        <div class="row">
+            <div class="col text-center">
+                <form method="post" action="{{ path('stapel_visualisierung') }}">
+                    <input type="hidden" name="remove_last" value="1">
+                    <button type="submit" class="btn btn-danger">Letzte Platte entfernen</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <div class="paletten-container">
+                    {% for paletteTyp, paletteData in stapelListe %}
+                    <div>
+                        <div class="row">
+                            <div class="palette">
+                                <div class="stapelplaetze {% if paletteTyp == 'laengs' %}horizontal{% endif %}">
+                                    {% for platzName, stapelplatz in paletteData.stapelplaetze %}
+                                        <div class="stapelplatz {% if paletteTyp == 'ganz' %}full-size{% endif %}">
+                                            {% for platte in stapelplatz %}
+                                            {% if platte.gedreht %}
+                                                {% set rotateMaserung = "90deg" %}
+                                                {% set maserungslaenge = platte.breite %}
+                                            {% else %}
+                                                {% set rotateMaserung = "0deg" %}
+                                                {% set maserungslaenge = platte.laenge %}
+                                            {% endif %}
+                                            {% if platte.laenge < platte.breite %}
+                                                {% set plattenRotation = "90deg" %}
+                                                {% set textRotation = "0deg" %}
+                                                {% set text = platte.laenge ~ ' x ' ~ platte.breite ~ ' x ' ~ platte.dicke %}
+                                            {% else %}
+                                                {% set plattenRotation = "0deg" %}
+                                                {% set textRotation = "90deg" %}
+                                                {% set text = platte.breite ~ ' x ' ~ platte.laenge ~ ' x ' ~ platte.dicke %}
+                                            {% endif %}
+                                                <div class="platte 
+                                                    {% if platte == letztePlatte and loop.last %}highlight{% endif %}"
+                                                    style="width: {{ (platte.breite / 1200) * 240 }}px; height: {{ (platte.laenge / 2500) * 500 }}px; left: calc(50% - {{ ((platte.breite / 1200) * 240) / 2 }}px); top: calc(50% - {{ ((platte.laenge / 2500) * 500) / 2 }}px); z-index: {{ loop.index }}; transform: rotate({{plattenRotation}});">
+                                                    {% if loop.last %}
+                                                        <div class="maserung" style="height: {{ (maserungslaenge / 2500) * 200 }}px; transform: rotate({{rotateMaserung}});">
+                                                            <div class="maserung-strich"></div>
+                                                            <div class="maserung-strich"></div>
+                                                            <div class="maserung-strich"></div>
+                                                        </div>
+                                                        {% if platte.kanteLinks %}
+                                                            <div class="kante links" style="background-color: 'black';"></div>
+                                                        {% endif %}
+                                                        {% if platte.kanteRechts %}
+                                                            <div class="kante rechts" style="background-color: 'black';"></div>
+                                                        {% endif %}
+                                                        {% if platte.kanteOben %}
+                                                            <div class="kante oben" style="background-color: 'black';"></div>
+                                                        {% endif %}
+                                                        {% if platte.kanteUnten %}
+                                                            <div class="kante unten" style="background-color: 'black';"></div>
+                                                        {% endif %}
+                                                        <span style="color: black; font-weight: bold; transform: rotate({{textRotation}}); display: inline-block;">{{ text }} mm</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="empty-palette-btn-container m-0">
+                                <form method="POST" action="{{ path('stapel_visualisierung') }}">
+                                    <input type="hidden" name="empty_palette" value="{{ paletteTyp }}">
+                                    <button type="submit" class="btn btn-warning">Palette leeren</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <p>Keine Paletten vorhanden.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="d-grid gap-2 col-12 mx-auto">
+                <a class="btn btn-danger" href="{{ path('stapel_visualisierung', { reset: 1 }) }}" role="button">Alle Paletten leeren</a>
+            </div>
+        </div>
+    </div>
+    <style>
+.paletten-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.palette {
+    background-color: #e0e0e0;
+    border: 2px solid #333;
+    padding: 1px;
+    width: 260px;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.stapelplaetze {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex-grow: 1;
+}
+
+.stapelplaetze.horizontal {
+    flex-direction: row;
+}
+
+.stapelplatz {
+    position: relative;
+    background-color: #f0f0f0;
+    border: 1px dashed #000;
+    min-height: 150px;
+    padding: 5px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.stapelplatz.fullsize- {
+    height: 1000px;
+    width: 240px;
+}
+
+.platte {
+    position: absolute;
+    background-color: rgba(76, 175, 80, 0.7);
+    border: 1px solid #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 10px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.platte.highlight {
+    background-color: rgba(255, 0, 0, 0.7);
+}
+
+.platte .maserung {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.maserung-strich {
+    width: 1px;
+    height: 50%;
+    background-color: rgba(103, 103, 103, 0.6);
+    opacity: 0.5;
+}
+
+.platte .kante {
+    position: absolute;
+    background-color: black;
+}
+
+.kante.oben, .kante.unten {
+    height: 2px;
+    width: 100%;
+}
+
+.kante.links, .kante.rechts {
+    width: 2px;
+    height: 100%;
+}
+
+.kante.oben { top: 0; left: 0; }
+.kante.unten { bottom: 0; left: 0; }
+.kante.links { top: 0; left: 0; }
+.kante.rechts { top: 0; right: 0; }
+
+.empty-palette-btn-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+form, a {
+    margin: 20px 0;
+}
+
+input, button {
+    margin-right: 10px;
+    padding: 5px;
+}
+
+    </style>
+{% endblock %}

@@ -1,0 +1,59 @@
+default:
+  select:
+    - ID: AV_STK_ID
+    - BREITE: STK_FBREITE
+    - LAENGE: STK_FLAENGE
+    - DICKE: STK_FDICKE
+    - FLAECHE: STK_FBREITE * STK_FLAENGE
+    - TEILENR: STK_TEILNR
+    - CNC_DATEN: CNC_DATEN
+    - KANTENILD_KURZ: STK_KBILDKZ
+    - KANTE_LINKS: (select CASE WHEN SUBSTRING(STK_KANTENBILD, 1, 2) not in ('00', '04') THEN 1 ELSE 0 END)
+    - KANTE_OBEN: (select CASE WHEN SUBSTRING(STK_KANTENBILD, 4, 2) not in ('00', '04') THEN 1 ELSE 0 END)
+    - KANTE_RECHTS: (select CASE WHEN SUBSTRING(STK_KANTENBILD, 7, 2) not in ('00', '04') THEN 1 ELSE 0 END)
+    - KANTE_UNTEN: (select CASE WHEN SUBSTRING(STK_KANTENBILD, 10, 2) not in ('00', '04') THEN 1 ELSE 0 END)
+  from:
+    AV_STK
+  order:
+    STK_ID, STK_REIHENFOLGE
+
+by_auf_id:
+  extends: Platten:default
+  override:
+    where:
+      STK_ID = [ID]
+      AND KANTENILD_KURZ = 'HT'
+
+by_cnc_path:
+  extends: Platten:default
+  override:
+    where:
+      STK_ART = 'A'
+      AND KANTENILD_KURZ = 'HT'
+      AND CNC_DATEN = [CNC_PATH]
+    top:
+      top 1
+
+by_id:
+  extends: Platten:default
+  override:
+    where:
+      STK_ART = 'A'
+      and AV_STK_ID = [ID]
+      AND KANTENILD_KURZ = 'HT'
+
+is_unique_by_cnc_path:
+  select:
+    - COUNT: COUNT(*)
+    - BREITE: STK_FBREITE
+    - LAENGE: STK_FLAENGE
+    - DICKE: STK_FDICKE
+    - KANTENBILD: STK_KANTENBILD
+  from:
+    AV_STK
+  where:
+    STK_ART = 'A'
+    and STK_KBILDKZ = 'HT'
+    and CNC_DATEN = [CNC_PATH]
+  group:
+    STK_FBREITE, STK_FLAENGE, STK_FDICKE, STK_KANTENBILD

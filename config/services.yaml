@@ -4,6 +4,15 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.title: '%env(TITLE)%'
+    app.plattenbreite_min: '%env(PLATTENBREITE_MIN)%'
+    app.plattenbreite_max: '%env(PLATTENBREITE_MAX)%'
+    app.plattenlaenge_min: '%env(PLATTENLAENGE_MIN)%'
+    app.plattenlaenge_max: '%env(PLATTENLAENGE_MAX)%'
+    app.plattendicke_min: '%env(PLATTENDICKE_MIN)%'
+    app.plattendicke_max: '%env(PLATTENDICKE_MAX)%'
+    app.palettenbreite: '%env(PALETTENBREITE)%'
+    app.palettenlaenge: '%env(PALETTENLAENGE)%'
 
 services:
     # default configuration for services in *this* file

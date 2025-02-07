@@ -1,0 +1,8 @@
+twig:
+    file_name_pattern: '*.twig'
+    globals:
+        webapp_title: '%app.title%'
+
+when@test:
+    twig:
+        strict_variables: true

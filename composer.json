@@ -3,18 +3,30 @@
     "license": "proprietary",
     "minimum-stability": "stable",
     "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://cli:7iYTun7pySoQwykeX0c5@packagist.erpag.org",
+            "canonical": true
+        }
+    ],
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "erpag/db-query-service-bundle": "^4.0",
+        "symfony/apache-pack": "^1.0",
+        "symfony/asset": "7.2.*",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/monolog-bundle": "^3.0",
         "symfony/runtime": "7.2.*",
-        "symfony/yaml": "7.2.*"
-    },
-    "require-dev": {
+        "symfony/twig-bundle": "7.2.*",
+        "symfony/yaml": "7.2.*",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/twig": "^2.12|^3.0"
     },
     "config": {
         "allow-plugins": {
@@ -65,5 +77,10 @@
             "allow-contrib": false,
             "require": "7.2.*"
         }
+    },
+    "require-dev": {
+        "symfony/debug-bundle": "7.2.*",
+        "symfony/stopwatch": "7.2.*",
+        "symfony/web-profiler-bundle": "7.2.*"
     }
 }
